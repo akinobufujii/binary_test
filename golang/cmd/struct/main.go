@@ -15,19 +15,18 @@ type TestData struct {
 	Buzz int16
 }
 
-func readTestData(filename string) (*TestData, error) {
+func readTestData(filename string, testData *TestData) error {
 	file, err := os.Open(filename)
 	if err != nil {
-		return nil, fmt.Errorf("failed os.Open: %s %w", filename, err)
+		return fmt.Errorf("failed os.Open: %s %w", filename, err)
 	}
 	defer file.Close()
 
-	testData := new(TestData)
 	if err := binary.Read(file, binary.LittleEndian, testData); err != nil {
-		return nil, fmt.Errorf("failed binary.Read: %s %w", filename, err)
+		return fmt.Errorf("failed binary.Read: %s %w", filename, err)
 	}
 
-	return testData, nil
+	return nil
 }
 
 func writeTestData(filename string, testData *TestData) error {
@@ -59,8 +58,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	readData, err := readTestData(dataName)
-	if err != nil {
+	readData := TestData{}
+	if err := readTestData(dataName, &readData); err != nil {
 		fmt.Fprintf(os.Stderr, "%+v", errors.WithStack(err))
 		os.Exit(1)
 	}
